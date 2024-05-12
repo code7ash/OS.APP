@@ -1,0 +1,115 @@
+// Define constants for hardware addresses and sizes
+#define SCREEN_WIDTH 80
+#define SCREEN_HEIGHT 25
+#define VIDEO_MEMORY_ADDRESS 0xb8000
+
+// Define color constants
+#define COLOR_BLACK         0x00
+#define COLOR_BLUE          0x01
+#define COLOR_GREEN         0x02
+#define COLOR_CYAN          0x03
+#define COLOR_RED           0x04
+#define COLOR_MAGENTA       0x05
+#define COLOR_BROWN         0x06
+#define COLOR_LIGHT_GREY    0x07
+#define COLOR_DARK_GREY     0x08
+#define COLOR_LIGHT_BLUE    0x09
+#define COLOR_LIGHT_GREEN   0x0A
+#define COLOR_LIGHT_CYAN    0x0B
+#define COLOR_LIGHT_RED     0x0C
+#define COLOR_LIGHT_MAGENTA 0x0D
+#define COLOR_LIGHT_BROWN   0x0E
+#define COLOR_WHITE         0x0F
+
+// Function to write a character to the screen
+void putchar(char character, int x, int y, char color) {
+    // Calculate the offset into video memory based on x and y coordinates
+    int offset = (y * SCREEN_WIDTH + x) * 2;
+    
+    // Write character to video memory
+    char* video_memory = (char*)VIDEO_MEMORY_ADDRESS;
+    video_memory[offset] = character;
+    video_memory[offset + 1] = color; // Set color attribute
+}
+
+// Function to clear the screen
+void clear_screen() {
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 0; x < SCREEN_WIDTH; x++) {
+            putchar(' ', x, y, COLOR_BLACK); // Write a space with black color to clear the screen
+        }
+    }
+}
+
+// Function to print a string vertically
+void print_vertical(const char* str, int x, int y, char color) {
+    // Print each character of the string vertically
+    for (int i = 0; str[i] != '\0'; i++) {
+        putchar(str[i], x, y + i, color);
+    }
+}
+
+// Function to change text color
+void set_text_color(char color) {
+    for (int y = 0; y < SCREEN_HEIGHT; y++) {
+        for (int x = 0; x < SCREEN_WIDTH; x++) {
+            char* video_memory = (char*)VIDEO_MEMORY_ADDRESS;
+            int offset = (y * SCREEN_WIDTH + x) * 2 + 1;
+            video_memory[offset] = color; // Set color attribute for each character on the screen
+        }
+    }
+}
+
+// Function to create a taskbar
+void create_taskbar() {
+    // Placeholder function for creating a taskbar
+    // This could involve drawing a bar at the bottom of the screen
+    // and adding icons or buttons for running tasks
+    // For simplicity, let's just print a simple taskbar message
+    const char* taskbar_message = "Taskbar";
+    for (int i = 0; taskbar_message[i] != '\0'; i++) {
+        putchar(taskbar_message[i], i, SCREEN_HEIGHT - 1, COLOR_LIGHT_GREY); // Print taskbar message horizontally at the bottom of the screen
+    }
+}
+
+// Entry point of the kernel
+void kernel_main() {
+    clear_screen();
+    
+    // Print "PhantomOS" at the startup
+    const char* os_name = "PhantomOS";
+    int x = (SCREEN_WIDTH - strlen(os_name)) / 2; // Center the text horizontally
+    int y = SCREEN_HEIGHT / 2; // Center the text vertically
+    for (int i = 0; os_name[i] != '\0'; i++) {
+        putchar(os_name[i], x + i, y, COLOR_LIGHT_BLUE); // Print characters one by one horizontally with light blue color
+    }
+    
+    // Example: Print "Welcome all users!" horizontally
+    const char* message = "Welcome all users!";
+    for (int i = 0; message[i] != '\0'; i++) {
+        putchar(message[i], i, 0, COLOR_WHITE); // Print characters one by one horizontally with white color
+    }
+
+    // Example: Print "OpenAI" vertically starting at position (60, 10)
+    const char* vertical_message = "OpenAI";
+    print_vertical(vertical_message, 60, 10, COLOR_LIGHT_RED); // Print characters vertically with light red color
+    
+    // Change text color to green
+    set_text_color(COLOR_LIGHT_GREEN);
+    
+    // Example: Print "OS Demo" horizontally with the new color
+    const char* demo_message = "OS Demo";
+    for (int i = 0; demo_message[i] != '\0'; i++) {
+        putchar(demo_message[i], 30 + i, 20, COLOR_LIGHT_GREEN); // Print characters one by one horizontally with light green color
+    }
+    
+    // Create the taskbar
+    create_taskbar();
+}
+
+// Dummy implementation of required functions to avoid linker errors
+void _start() {
+    kernel_main();
+}
+void _exit() {}
+
